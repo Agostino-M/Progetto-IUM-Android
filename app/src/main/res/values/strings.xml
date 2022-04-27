@@ -11,7 +11,8 @@
     <string name="cognome">Cognome</string>
     <string name="mandatory">Campo obbligatorio</string>
     <string name="no_ripetizioni_title">Non sono presenti ripetizioni disponibili per questo corso</string>
+    <string name="no_prenotazioni_title">Non sono presenti prenotazioni</string>
     <string name="no_ripetizioni_descrizione">Attendi che ne vengano aggiunte nuove</string>
-    <string name="email">Email</string>
-    <string name="password">Password</string>
+    <string name="no_prenotazioni_descrizione">Vai alla lista dei corsi</string>
+    <string name="logout">Login/Logout</string>
 </resources>

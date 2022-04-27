@@ -19,7 +19,8 @@
             android:layout_height="wrap_content"
             android:hint="@string/email"
             android:inputType="textEmailAddress"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            android:theme="@style/EditTextTheme" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -33,7 +34,8 @@
             android:layout_height="wrap_content"
             android:hint="@string/password"
             android:inputType="textPassword"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            android:theme="@style/EditTextTheme" />
     </com.google.android.material.textfield.TextInputLayout>
 
 

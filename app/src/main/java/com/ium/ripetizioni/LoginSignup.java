@@ -21,22 +21,22 @@ import com.ium.ripetizioni.fragment.SignUpFragment;
 
 public class LoginSignup extends AppCompatActivity implements View.OnClickListener {
 
-    String peovenienza;
-    String nomeCorso;
-    int idCorso;
-    TextView loginText, signUpBtn;
-    Button sign_button;
-    EditText nomeEditText;
-    EditText cognomeEditText;
-    EditText emailEditText;
-    EditText passwordEditText;
+    private String provenienza;
+    private String nomeCorso;
+    private int idCorso;
+    private TextView loginText, signUpBtn;
+    private Button sign_button;
+    private EditText nomeEditText;
+    private EditText cognomeEditText;
+    private EditText emailEditText;
+    private EditText passwordEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            peovenienza = extras.getString("provenienza");
+            provenienza = extras.getString("provenienza");
             nomeCorso = extras.getString("nome_corso");
             idCorso = extras.getInt("id_corso");
         }
@@ -79,7 +79,7 @@ public class LoginSignup extends AppCompatActivity implements View.OnClickListen
         if (v == sign_button) {
             Object tag = v.getTag();
             if (tag.equals(R.string.login)) {
-                GestioneDB db = new GestioneDB(this);
+                DBManagement db = new DBManagement(this);
                 db.open();
                 emailEditText = findViewById(R.id.login_email);
                 passwordEditText = findViewById(R.id.login_password);
@@ -90,7 +90,7 @@ public class LoginSignup extends AppCompatActivity implements View.OnClickListen
                 String email = emailEditText.getText().toString();
                 String password = passwordEditText.getText().toString();
 
-                Cursor c = db.getUtenti();
+                Cursor c = db.getAllUsers();
                 boolean found = false;
                 if (c.moveToFirst()) {
                     do {
@@ -103,27 +103,18 @@ public class LoginSignup extends AppCompatActivity implements View.OnClickListen
                             Toast.makeText(getApplicationContext(), "Login effettuato!", Toast.LENGTH_SHORT).show();
                             found = true;
                             db.close();
-                            Intent intent = new Intent(this, MainActivity.class);
-                            if (peovenienza != null && peovenienza.equals("prenotazioni")) {
-                                //intent = new Intent(this, ListaPrenotazioni.class);
-                            } else if (peovenienza != null && peovenienza.equals("listaliberi")) {
-                                intent = new Intent(this, ListaLiberi.class);
-                                intent.putExtra("nome_corso", nomeCorso);
-                                intent.putExtra("id_corso", idCorso);
-                            }
-                            finish();
-
-                            this.startActivity(intent);
+                            goToActivity();
                         }
                     } while (c.moveToNext());
-                    if (!found)
+                    if (!found) {
                         Toast.makeText(getApplicationContext(), "L'utente non esiste", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
                     Toast.makeText(getApplicationContext(), "Impossibile effettuare il login", Toast.LENGTH_SHORT).show();
                 }
                 db.close();
             } else if (tag.equals(R.string.signup)) {
-                GestioneDB db = new GestioneDB(this);
+                DBManagement db = new DBManagement(this);
                 db.open();
                 nomeEditText = findViewById(R.id.nome);
                 cognomeEditText = findViewById(R.id.cognome);
@@ -138,7 +129,7 @@ public class LoginSignup extends AppCompatActivity implements View.OnClickListen
                 String email = emailEditText.getText().toString();
                 String password = passwordEditText.getText().toString();
 
-                long id = db.inserisciUtente(nome, cognome, email, password);
+                long id = db.insertUser(nome, cognome, email, password);
                 if (id != -1) {
                     Toast.makeText(getApplicationContext(), "Registrazione effettuata!", Toast.LENGTH_SHORT).show();
                 } else {
@@ -146,33 +137,43 @@ public class LoginSignup extends AppCompatActivity implements View.OnClickListen
                 }
                 SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
                 SharedPreferences.Editor editor = preferences.edit();
-                Cursor c = db.getUtente(email);
+                Cursor c = db.getUser(email);
                 editor.putString("Email", email);
                 editor.putString("ID", c.getString(0));
                 editor.apply();
                 db.close();
-                Intent intent = null;
-                /*if (richiamo == null)
-                    intent = new Intent(this, MainActivity.class);
-                else if (richiamo.equals("prenotazioni"))
-                    intent = new Intent(this, ListaPrenotazioni.class);
-                else if (richiamo.equals("listaliberi")) {
-                    intent = new Intent(this, ListaLiberi.class);
-                    intent.putExtra("nome_corso", corso);
-                }
-                this.startActivity(intent);*/
+                goToActivity();
             }
         }
     }
 
+    private void goToActivity() {
+        Intent intent = new Intent(this, Homepage.class);
+        if (provenienza != null && provenienza.equals("prenotazioni")) {
+            intent = new Intent(this, BookingList.class);
+        } else if (provenienza != null && provenienza.equals("ripetizioni")) {
+            intent = new Intent(this, LessonList.class);
+            intent.putExtra("nome_corso", nomeCorso);
+            intent.putExtra("id_corso", idCorso);
+        } else if (provenienza != null && provenienza.equals("corsi")) {
+            intent = new Intent(this, CourseList.class);
+        }
+        finish();
+        this.startActivity(intent);
+    }
+
     @Override
     public void onBackPressed() {
-        if (peovenienza.equals("listaliberi")) {
-            Intent intent = new Intent(getApplicationContext(), ListaLiberi.class);
+        if (provenienza != null && provenienza.equals("ripetizioni")) {
+            Intent intent = new Intent(getApplicationContext(), LessonList.class);
             intent.putExtra("nome_corso", nomeCorso);
             intent.putExtra("id_corso", idCorso);
             startActivity(intent);
+        } else {
+            Intent intent = new Intent(getApplicationContext(), Homepage.class);
+            startActivity(intent);
         }
+        finish();
         super.onBackPressed();
     }
 
